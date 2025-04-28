@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 
+// v0.0.1
+
 public class CPHInline
 {
     //Make a list of quotes
@@ -76,7 +78,7 @@ public class CPHInline
     }
 
     /*
-	Fetch all the quotes and put them in a list.
+	Fetch all the quotes and put them in a list - based on code from Streamerbot support Discord member Rondhi
 	We've got to do this because:
 	- There's no continuous index 
 	- There's no function to get the max index (just the count of quotes)
