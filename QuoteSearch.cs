@@ -11,7 +11,7 @@ Usage: !quotesearch <searchterm>
 
 public class CPHInline
 {
-    /* ===Start of user definiable values===*/
+    /* ===Start of user configurable values===*/
 
     //Default behaviour for quotesearch returns the first item if multiple quotes are found when searching by string. If you want a random quote instead set this to 'true'.
     private const bool _quoteSearchRandomQuoteReturn = false;
@@ -34,7 +34,7 @@ public class CPHInline
             "emote2"
         };
 
-    /*===End of user definiable values===*/
+    /*===End of user configurable values===*/
 
 
     //Make a list of quotes
