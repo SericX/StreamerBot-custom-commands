@@ -1,17 +1,48 @@
 using System;
 using System.Collections.Generic;
 
-// v0.0.1
+/*
+----------------------------------
+v0.1.0
+----------------------------------
+QuoteSearch allows users to search for quotes by string. 
+Usage: !quotesearch <searchterm>
+*/
 
 public class CPHInline
 {
+    /* ===Start of user definiable values===*/
+
+    //Default behaviour for quotesearch returns the first item if multiple quotes are found when searching by string. If you want a random quote instead set this to 'true'.
+    private const bool _quoteSearchRandomQuoteReturn = false;
+    //If we hit a run of 5 unfetchable quotes, assume we've reached the end of the quote list
+    //Note: You may want to increase this if you delete lots of quotes and run into problems
+    private const int _maxConsecutiveFailures = 5;
+    //Streamer.bot stores quotes with a permenant index, but doesn't expose how many have been deleted so we need to assume an amount are missing
+    //If you delete a lot of quotes, you may need to increase this number
+    private const int _quoteIndexSurplus = 100;
+    //List of emotes to randomly select from when quotes are found
+    private string[] _quoteFoundEmotes =
+        {
+            "emote1",
+            "emote2"
+        };
+    //List of emotes to randomly select from when quotes are NOT found
+    private string[] _quoteNotFoundEmotes =
+        {
+            "emote1",
+            "emote2"
+        };
+
+    /*===End of user definiable values===*/
+
+
     //Make a list of quotes
-    List<QuoteData> quotes = new();
+    private List<QuoteData> quotes = new();
     public bool Execute()
     {
         //Populate the quotes list
         FetchQuotes();
-        //Set up a null quote object
         QuoteData quote;
         //Read the input
         string input0 = args.ContainsKey("inputEscaped0") ? args["inputEscaped0"].ToString() : "";
@@ -46,14 +77,26 @@ public class CPHInline
     //Find a quote by quote text
     private QuoteData FindQuoteByString(string searchStr)
     {
+        List<QuoteData> foundQuotes = new();
         //Iterate over all the quotes
         foreach (QuoteData quote in quotes)
         {
             //If the quote text contains the search string, return it
             if (quote.Quote.ToUpper().Contains(searchStr))
             {
-                return quote;
+                //If random return isn't enabled, return the first quote
+                if (!_quoteSearchRandomQuoteReturn)
+                {
+                    return quote;
+                }
+                //If random return is enabled, add the quote to a list
+                foundQuotes.Add(quote);
             }
+        }
+        //Return a random found quote if we found any
+        if (foundQuotes.Count > 0)
+        {
+            return foundQuotes[new Random().Next(0, foundQuotes.Count)];
         }
 
         //If we don't find a match, return null
@@ -78,7 +121,7 @@ public class CPHInline
     }
 
     /*
-	Fetch all the quotes and put them in a list - based on code from Streamerbot support Discord member Rondhi
+	Fetch all the quotes and put them in a list.
 	We've got to do this because:
 	- There's no continuous index 
 	- There's no function to get the max index (just the count of quotes)
@@ -86,12 +129,14 @@ public class CPHInline
 	I may be dentge, it's late
 	*/
     private void FetchQuotes()
+
     {
         int maxQuoteNumber = CPH.GetQuoteCount();
-        //We're gonna assume we've deleted fewer than 1000 quotes
-        maxQuoteNumber += 100;
+        int consecutiveFailures = 0;
+
+
         //Iterate over the range of maximum quote numbers and retrieve each quote
-        for (int i = 1; i <= maxQuoteNumber; i++)
+        for (int i = 1; i <= maxQuoteNumber + _quoteIndexSurplus; i++)
         {
             try
             {
@@ -100,9 +145,14 @@ public class CPHInline
                 //If no quote is found, skip to the next index
                 if (quote == null)
                 {
+                    consecutiveFailures++;
+                    if (consecutiveFailures >= _maxConsecutiveFailures)
+                    {
+                        break;
+                    }
                     continue;
                 }
-
+                consecutiveFailures = 0;
                 //If a quote is found, add it to the quotes list
                 quotes.Add(quote);
             }
@@ -119,24 +169,12 @@ public class CPHInline
         //If the quote is null, quote not found
         if (quote == null)
         {
-            //List of emotes to use for quotes not found
-            string[] quoteNotFoundEmotes =
-            {
-                "emote1",
-                "emote2"
-            };
             //Message sent when a quote is not found, matches format: Quote not found <Emote from quoteNotFoundEmotes list>
-            CPH.SendMessage($"Quote not found {quoteNotFoundEmotes[new Random().Next(0, quoteNotFoundEmotes.Length)]}");
+            CPH.SendMessage($"Quote not found {_quoteNotFoundEmotes[new Random().Next(0, _quoteNotFoundEmotes.Length)]}");
             return;
         }
 
-        //List of emotes to use for quotes found
-        string[] quoteFoundEmotes =
-        {
-            "emote1",
-            "emote2"
-        };
         //Message sent when a quote is found, matches format: "Quote" ( #QuoteID ) ( Game ) <Emote from quoteFoundEmotes list>
-        CPH.SendMessage($"\"{quote.Quote}\" ( #{quote.Id} ) ( {quote.GameName} ) {quoteFoundEmotes[new Random().Next(0, quoteFoundEmotes.Length)]}");
+        CPH.SendMessage($"\"{quote.Quote}\" ( #{quote.Id} ) ( {quote.GameName} ) {_quoteFoundEmotes[new Random().Next(0, _quoteFoundEmotes.Length)]}");
     }
 }
