@@ -7,6 +7,7 @@ v0.1.0
 ----------------------------------
 QuoteSearch allows users to search for quotes by string. 
 Usage: !quotesearch <searchterm>
+Make sure you read through the 'user configurable values' section :)
 */
 
 public class CPHInline
