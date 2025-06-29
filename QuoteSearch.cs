@@ -14,8 +14,8 @@ public class CPHInline
 {
     /* ===Start of user configurable values===*/
 
-    //Default behaviour for quotesearch returns the first item if multiple quotes are found when searching by string. If you want a random quote instead set this to 'true'.
-    private const bool _quoteSearchRandomQuoteReturn = false;
+    //If set to 'false', quotesearch returns the first item if multiple quotes are found when searching by string. If you want a random quote instead set this to 'true'.
+    private const bool _quoteSearchRandomQuoteReturn = true;
     //If we hit a run of 5 unfetchable quotes, assume we've reached the end of the quote list
     //Note: You may want to increase this if you delete lots of quotes and run into problems
     private const int _maxConsecutiveFailures = 5;
