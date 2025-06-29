@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Find & Replace</title>
+    <!-- Tailwind CSS CDN for easy styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter for a modern look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for body and to ensure Inter font is applied */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-gray-900 to-purple-950 p-4 flex items-center justify-center">
+    <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-3xl border-2 border-purple-700">
+        <h1 class="text-3xl font-extrabold text-center text-purple-300 mb-8 tracking-tight">
+            Configure Quote Search
+        </h1>
+
+        <!-- Input Form -->
+        <div class="space-y-6 mb-8">
+            <div>
+                <label for="findInput" class="block text-sm font-medium text-gray-300 mb-1">
+                    Enter the emotes you want when quotes are found (comma-separated, e.g. emote1, emote2):
+                </label>
+                <input type="text" id="findInput"
+                    class="mt-1 block w-full px-4 py-2 border border-gray-600 rounded-lg shadow-sm focus:ring-purple-500 focus:border-purple-500 transition duration-150 ease-in-out sm:text-base focus:outline-none focus:ring-2 bg-gray-700 text-white placeholder-gray-400"
+                    placeholder="e.g., :sparkle:,:star:" aria-label="New quote found emotes" />
+            </div>
+            <div>
+                <label for="replaceInput" class="block text-sm font-medium text-gray-300 mb-1">
+                    Enter the emotes you want when quotes are not found (comma-separated, e.g. emote1, emote2):
+                </label>
+                <input type="text" id="replaceInput"
+                    class="mt-1 block w-full px-4 py-2 border border-gray-600 rounded-lg shadow-sm focus:ring-purple-500 focus:border-purple-500 transition duration-150 ease-in-out sm:text-base focus:outline-none focus:ring-2 bg-gray-700 text-white placeholder-gray-400"
+                    placeholder="e.g., :x:,:trashcan:" aria-label="New quote not found emotes" />
+            </div>
+
+            <button id="goButton"
+                class="w-full bg-gradient-to-r from-purple-700 to-indigo-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:from-purple-800 hover:to-indigo-800 focus:outline-none focus:ring-4 focus:ring-purple-500 transition duration-300 ease-in-out transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                Go
+            </button>
+        </div>
+
+        <!-- Display Area for Results or Errors -->
+        <div id="errorMessage"
+            class="hidden bg-red-900 border border-red-700 text-red-300 px-4 py-3 rounded-lg relative mb-6"
+            role="alert">
+            <strong class="font-bold">Error!</strong>
+            <span id="errorText" class="block sm:inline ml-2"></span>
+        </div>
+
+        <div id="resultsContainer" class="space-y-6 hidden">
+            <div class="bg-gray-700 p-6 rounded-lg border border-gray-600 shadow-md">
+                <h2 class="text-xl font-semibold text-pink-300 mb-3">Modified C# Code:</h2>
+                <!-- New Copy to Clipboard Button moved to the top of the code window -->
+                <button id="copyButton"
+                    class="mb-4 w-full bg-purple-700 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-purple-800 focus:outline-none focus:ring-4 focus:ring-purple-500 transition duration-300 ease-in-out transform hover:scale-105 active:scale-95">
+                    Copy to Clipboard
+                </button>
+                <pre id="modifiedTextDisplay"
+                    class="text-gray-200 leading-relaxed whitespace-pre-wrap text-sm overflow-x-auto"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get references to DOM elements
+        const findInput = document.getElementById('findInput');
+        const replaceInput = document.getElementById('replaceInput');
+        const goButton = document.getElementById('goButton');
+        const modifiedTextDisplay = document.getElementById('modifiedTextDisplay');
+        const errorMessageDiv = document.getElementById('errorMessage');
+        const errorTextSpan = document.getElementById('errorText');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const copyButton = document.getElementById('copyButton'); // Get reference to the new copy button
+
+        // URL for fetching the C# code
+        const FETCH_URL = 'https://raw.githubusercontent.com/SericX/StreamerBot-custom-commands/refs/heads/main/QuoteSearch.cs';
+
+        /**
+         * Hides an HTML element by adding the 'hidden' Tailwind class.
+         * @param {HTMLElement} element - The HTML element to hide.
+         */
+        function hideElement(element) {
+            element.classList.add('hidden');
+        }
+
+        /**
+         * Shows an HTML element by removing the 'hidden' Tailwind class.
+         * @param {HTMLElement} element - The HTML element to show.
+         */
+        function showElement(element) {
+            element.classList.remove('hidden');
+        }
+
+        /**
+         * Displays an error message and hides results.
+         * @param {string} message - The error message to display.
+         */
+        function displayError(message) {
+            errorTextSpan.textContent = message;
+            showElement(errorMessageDiv);
+            hideElement(resultsContainer);
+        }
+
+        /**
+         * Clears any displayed error messages.
+         */
+        function clearError() {
+            hideElement(errorMessageDiv);
+            errorTextSpan.textContent = '';
+        }
+
+        /**
+         * Handles the click event for the "Go" button.
+         * Fetches text, performs find and replace, and updates the display.
+         */
+        goButton.addEventListener('click', async () => {
+            goButton.textContent = 'Processing...'; // Change button text to indicate loading
+            goButton.disabled = true; // Disable button during processing
+            clearError(); // Clear any previous errors
+            hideElement(resultsContainer); // Hide previous results
+
+            const newFoundEmotesRaw = findInput.value;
+            const newNotFoundEmotesRaw = replaceInput.value;
+
+            // Format the user input into C# string array format (e.g., "emote1", "emote2")
+            // Elements are joined with a comma, newline, and proper indentation for C# array.
+            const formattedFoundEmotes = newFoundEmotesRaw
+                .split(',')
+                .map(s => s.trim())
+                .filter(s => s !== '') // Remove empty strings from split
+                .map(s => `"${s}"`)
+                .join(',\n            ');
+
+            const formattedNotFoundEmotes = newNotFoundEmotesRaw
+                .split(',')
+                .map(s => s.trim())
+                .filter(s => s !== '') // Remove empty strings from split
+                .map(s => `"${s}"`)
+                .join(',\n            ');
+
+            try {
+                // Fetch data from the specified URL
+                const response = await fetch(FETCH_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                // Get the raw text content (C# code)
+                const fetchedContent = await response.text();
+
+                let modifiedContent = fetchedContent;
+
+                // Regex to find the entire _quoteFoundEmotes block
+                // Matches 'private string[] _quoteFoundEmotes =', followed by optional 'new string[]',
+                // then the opening '{', any content (non-greedily), and the closing '};'.
+                const foundEmotesBlockRegex = /(private\s+string\[\]\s+_quoteFoundEmotes\s*=\s*(?:new\s+string\[\]\s*)?\{[\s\S]*?\};)/;
+
+                // Construct the new _quoteFoundEmotes block with proper C# indentation
+                const newFoundEmotesBlock = `    private string[] _quoteFoundEmotes =
+        {
+            ${formattedFoundEmotes}
+        };`;
+
+                // Replace the old block with the new one
+                modifiedContent = modifiedContent.replace(foundEmotesBlockRegex, newFoundEmotesBlock);
+
+                // Regex to find the entire _quoteNotFoundEmotes block
+                // Matches 'private string[] _quoteNotFoundEmotes =', followed by optional 'new string[]',
+                // then the opening '{', any content (non-greedily), and the closing '};'.
+                const notFoundEmotesBlockRegex = /(private\s+string\[\]\s+_quoteNotFoundEmotes\s*=\s*(?:new\s+string\[\]\s*)?\{[\s\S]*?\};)/;
+
+                // Construct the new _quoteNotFoundEmotes block with proper C# indentation
+                const newNotFoundEmotesBlock = `    private string[] _quoteNotFoundEmotes =
+        {
+            ${formattedNotFoundEmotes}
+        };`;
+
+                // Replace the old block with the new one
+                modifiedContent = modifiedContent.replace(notFoundEmotesBlockRegex, newNotFoundEmotesBlock);
+
+                modifiedTextDisplay.textContent = modifiedContent; // Store the modified text
+
+                showElement(resultsContainer); // Show the results section
+
+            } catch (err) {
+                // Catch and display any errors during the fetch or processing
+                console.error("Failed to fetch or process C# code:", err);
+                displayError(`Error: ${err.message}. Could not fetch or process C# code. Please try again.`);
+            } finally {
+                goButton.textContent = 'Go'; // Reset button text
+                goButton.disabled = false; // Re-enable button
+            }
+        });
+
+        // Add event listener for the Copy to Clipboard button
+        copyButton.addEventListener('click', () => {
+            const textToCopy = modifiedTextDisplay.textContent;
+
+            // Create a temporary textarea element to copy the text
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = textToCopy;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+
+            try {
+                // Execute the copy command
+                document.execCommand('copy');
+                // Provide visual feedback
+                copyButton.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyButton.textContent = 'Copy to Clipboard';
+                }, 2000); // Reset button text after 2 seconds
+            } catch (err) {
+                console.error('Failed to copy text:', err);
+                // Fallback for browsers where execCommand might not work directly (e.g., due to security policies in iframes)
+                displayError('Failed to copy text automatically. Please select and copy manually.');
+            } finally {
+                document.body.removeChild(tempTextArea); // Clean up the temporary textarea
+            }
+        });
+    </script>
+</body>
+
+</html>
