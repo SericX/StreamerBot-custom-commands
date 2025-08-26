@@ -5,8 +5,7 @@ using System.Collections.Generic;
 ------------------------
 v1.0.0
 Only works with Streamer.bot v1.0.0+
-QuoteSearch allows users to search for quotes by string
-Add to default subactions to find quote by string
+QuoteSearch allows users to search for quotes by string and outputs the ID to %quoteNum%
 ------------------------
 */
 public class CPHInline
@@ -30,15 +29,14 @@ public class CPHInline
         QuoteData quote;
         //Read the input
         string input0 = args.ContainsKey("inputEscaped0") ? args["inputEscaped0"].ToString() : "";
-        //Check if the input is empty or whitespace
-        if (input0.Trim() != "")
+        //If input is string, assume search by string
+        quote = FindQuoteByString(input0.ToUpper());
+        //Output that quote!
+        if (quote != null)
         {
-            //If input is string, assume search by string
-            quote = FindQuoteByString(input0.ToUpper());
+            CPH.SetArgument("quoteNum", quote.Id);
         }
 
-        //Output that quote!
-        OutputQuote(quote);
         return true;
     }
 
@@ -113,18 +111,5 @@ public class CPHInline
                 continue;
             }
         }
-    }
-
-    //Formats the quote text and adds a fun emote on the end
-    private void OutputQuote(QuoteData quote)
-    {
-        //If the quote is null, quote not found
-        if (quote == null)
-        {
-            CPH.SetArgument("quoteNum", "NaN");
-            return;
-        }
-
-        CPH.SetArgument("quoteNum", quote.Id);
     }
 }
