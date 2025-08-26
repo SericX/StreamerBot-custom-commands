@@ -14,30 +14,12 @@ public class CPHInline
     /* ===Start of user definiable values===*/
     //Default behaviour for quotesearch returns the first item if multiple quotes are found when searching by string. If you want a random quote instead set this to 'true'.
     private const bool _quoteSearchRandomQuoteReturn = false;
-    //If you'd rather output a quoteId to the variable quoteId and handle the printing in the Streamer.bot UI, set this to true. QuoteSearch will set quoteId to the found quote instead of outputting the quote.
-    private const bool _outputQuoteId = false;
     //If we hit a run of 5 unfetchable quotes, assume we've reached the end of the quote list
     //Note: If you delete a lot of quotes, and don't reindex them you may need to increase this number
     private const int _maxConsecutiveFailures = 5;
     //Streamer.bot stores quotes with a set index, but doesn't expose how many have been deleted so we need to assume an amount are missing
     //Note: If you delete a lot of quotes, and don't reindex them you may need to increase this number
     private const int _quoteIndexSurplus = 50;
-    //List of emotes to use for quotes found
-    private string[] _quoteFoundEmotes =
-    {
-        "emote1",
-        "emote2"
-    };
-    //List of emotes to use for quotes not found
-    private string[] _quoteNotFoundEmotes =
-    {
-        "emote1",
-        "emote2"
-    };
-
-    //A variable for the found quote's quoteId, used if _outputQuoteId is set.
-    private int quoteId;
-
     /*===End of user definiable values===*/
     //Make a list of quotes
     private List<QuoteData> quotes = new();
@@ -53,11 +35,6 @@ public class CPHInline
         {
             //If input is string, assume search by string
             quote = FindQuoteByString(input0.ToUpper());
-        }
-        else
-        {
-            //If input is blank, assume random quote
-            quote = quotes[new Random().Next(0, quotes.Count)];
         }
 
         //Output that quote!
@@ -144,25 +121,10 @@ public class CPHInline
         //If the quote is null, quote not found
         if (quote == null)
         {
-            if (_outputQuoteId)
-            {
-
-
-                CPH.SetArgument("quoteId", quote.Id);
-            }
-
-            //Message sent when a quote is not found, matches format: Quote not found <Emote from quoteNotFoundEmotes list>
-            CPH.SendMessage($"Quote not found {_quoteNotFoundEmotes[new Random().Next(0, _quoteNotFoundEmotes.Length)]}");
+            CPH.SetArgument("quoteNum", "NaN");
             return;
         }
 
-        if (!_outputQuoteId)
-        {
-            //Message sent when a quote is found, matches format: "Quote" ( #QuoteID ) ( Game ) <Emote from quoteFoundEmotes list>
-            CPH.SendMessage($"\"{quote.Quote}\" ( #{quote.Id} ) ( {quote.GameName} ) {_quoteFoundEmotes[new Random().Next(0, _quoteFoundEmotes.Length)]}");
-        }
-
-        CPH.SetArgument("quoteId", quote.Id);
-
+        CPH.SetArgument("quoteNum", quote.Id);
     }
 }
