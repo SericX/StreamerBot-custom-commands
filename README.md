@@ -1,8 +1,8 @@
-# Somewhere to put my C# Streamerbot commands
-These classes are intended to be copy-pastable into a Streamer.bot 'Execute C# Code' sub-action. 
+# What is this repo?
+Somewhere to keep my custom Streamer.bot commands
+
+# What can I find here?
 
 ## QuoteSearch
-### What it do?
-Allows users to search for quotes by string. 
-### How it do?
-!quotesaerch searchterm
+Allows users to search for quotes by string (Streamer.bot v1.0.0+ only)
+
