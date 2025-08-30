@@ -2,7 +2,13 @@ using System;
 using LiteDB;
 using System.Linq;
 using System.Collections.Generic;
-
+/*
+------------------------
+v1.0.0
+Only works with Streamer.bot v1.0.0+
+QuoteSearch allows users to search for quotes by string and outputs the ID to %quoteNum%
+------------------------
+*/
 public class RewardRedeemer
 {
     public string UserId { get; set; }
