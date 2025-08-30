@@ -2,7 +2,7 @@
 Allows users to search for quotes by string (Streamer.bot v1.0.0+ only)
 
 # How to implement?
-You'll need to add it as a C# Code subaction and update the properties in the code. 
+You'll need to add it as a C# Code subaction and update the properties in the code. While adding the subaction, you may also need to click "Find Refs" in your C# editor to add a reference to LiteDB. Streamer.Bot found this in my default installation directory.
 
 ## topx
 By default, set to 3 to output the top 3 redeemers. You can change this to whatever number you like...theoretically. 
