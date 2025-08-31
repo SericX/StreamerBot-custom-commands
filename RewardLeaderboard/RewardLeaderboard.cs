@@ -61,7 +61,7 @@ public class CPHInline
         string msg = "";
         int place = 1;
         //Sortng by nubmer of redeems, then by UserName alphabetically, seems fair enough. 
-        foreach (RewardRedeemer redeemer in leaderboardToOutput.OrderByDescending(x => x.Count).ThenByAscending(x => x.UserName))
+        foreach (RewardRedeemer redeemer in leaderboardToOutput.OrderByDescending(x => x.Count).ThenBy(x => x.UserName))
         {
             if (place > 1)
             {
