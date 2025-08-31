@@ -25,7 +25,7 @@ public class CPHInline
         //Important that we close the connection quickly, or it can crash Streamer.Bot
         using (LiteDatabase liteDatabase = new LiteDatabase(path))
         {
-            //Fetch the reward redemptions list and order by redemptions descending
+            //Fetch the reward redemptions list and order by redemptions descending. 
             leaderboard = liteDatabase.GetCollection("rewardRedemptionUserCounts")
             .Find(Query.EQ("rewardid", rewardId))
             .Select(x => new RewardRedeemer { UserId = x["userid"].AsString, Count = x["count"].AsInt32 })
@@ -60,7 +60,8 @@ public class CPHInline
         //Output the scoreboard
         string msg = "";
         int place = 1;
-        foreach (RewardRedeemer redeemer in leaderboardToOutput)
+        //Sortng by nubmer of redeems, then by UserName alphabetically, seems fair enough. 
+        foreach (RewardRedeemer redeemer in leaderboardToOutput.OrderByDescending(x => x.Count).ThenByAscending(x => x.UserName))
         {
             if (place > 1)
             {
@@ -68,12 +69,12 @@ public class CPHInline
             }
             else
             {
-                msg += $"Top {topx} check-ins - #{place} {redeemer.UserName}: {redeemer.Count}";
+                msg += $"Top {topx} check-ins - | #{place} {redeemer.UserName}: {redeemer.Count}";
             }
 
             place++;
         }
 
-        return msg;
+        return msg += " |";
     }
 }
