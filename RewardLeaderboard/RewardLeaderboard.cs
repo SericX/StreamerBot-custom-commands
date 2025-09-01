@@ -4,33 +4,26 @@ using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
 
-public class RewardRedeemer
-{
-    public string UserId { get; set; }
-    public string UserName { get; set; }
-    public long Count { get; set; }
-}
-
 public class CPHInline
 {
     //How many places do you you want to display on your leaderboard?
-    private const int topx = 3;
+    private const int TopX = 3;
     //Locaiton of your twitch_data.db
-    private const string path = @"Your-streamer.bot-installation-path\StreamerBot\data\twitch_data.db";
+    private const string Path = @"Your-streamer.bot-installation-path\StreamerBot\data\twitch_data.db";
     //What is your rewardId?
-    private string rewardId = "Your persistent user tracked reward Id";
+    private string RewardId = "Your persistent user tracked reward Id";
     public bool Execute()
     {
         List<RewardRedeemer> leaderboard = new List<RewardRedeemer>();
         //Important that we close the connection quickly, or it can crash Streamer.Bot
-        using (LiteDatabase liteDatabase = new LiteDatabase(path))
+        using (LiteDatabase liteDatabase = new LiteDatabase(Path))
         {
             //Fetch the reward redemptions list and order by redemptions descending. 
             leaderboard = liteDatabase.GetCollection("rewardRedemptionUserCounts")
-            .Find(Query.EQ("rewardid", rewardId))
+            .Find(Query.EQ("rewardid", RewardId))
             .Select(x => new RewardRedeemer { UserId = x["userid"].AsString, Count = x["count"].AsInt32 })
             .OrderByDescending(x => x.Count)
-            .Take(topx)
+            .Take(TopX)
             .ToList();
         }
 
@@ -69,7 +62,7 @@ public class CPHInline
             }
             else
             {
-                msg += $"Top {topx} check-ins - | #{place} {redeemer.UserName}: {redeemer.Count}";
+                msg += $"Top {TopX} check-ins - | #{place} {redeemer.UserName}: {redeemer.Count}";
             }
 
             place++;
@@ -77,4 +70,11 @@ public class CPHInline
 
         return msg += " |";
     }
+}
+
+public class RewardRedeemer
+{
+    public string UserId { get; set; }
+    public string UserName { get; set; }
+    public long Count { get; set; }
 }
