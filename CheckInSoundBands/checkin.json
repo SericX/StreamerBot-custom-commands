@@ -1,0 +1,12 @@
+[
+    {
+        "CounterFrom": 1,
+        "CounterTo": 23,
+        "Path": "Path\\To\\Folder"
+    },
+    {
+        "CounterFrom": 24,
+        "CounterTo": 24,
+        "Path": "Path\\To\\Folder"
+    }
+]
