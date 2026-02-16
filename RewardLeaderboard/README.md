@@ -18,4 +18,4 @@ Top 3 check-ins - #1 User1: 3 | #2 User2: 2 | #3 User3: 1
 
 # Release Notes
 - v1.0.0
--- Initial release
+    - Initial release

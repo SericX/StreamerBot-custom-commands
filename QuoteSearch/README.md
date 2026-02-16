@@ -14,4 +14,4 @@ U0JBRR+LCAAAAAAABADtXelz2si2//6q3v/A872pmqmZzrR2ab4ZHGOwzcRgA+Z6PvQmIBaIIIGNb83/
 
 # Release Notes
 - v1.0.0
--- Initial release
+    - Initial release
