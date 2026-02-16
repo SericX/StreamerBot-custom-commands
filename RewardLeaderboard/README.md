@@ -1,4 +1,4 @@
-# RewardLeaderboard
+# RewardLeaderboard v1.0.0
 Outputs a table of the top x redeemers for a reward with a persistent user counter (Streamer.bot v1.0.0+ only)
 
 # How to implement?
@@ -15,3 +15,7 @@ Your reward has a unique ID associated with it, you can find out what this is in
 
 # Example Output
 Top 3 check-ins - #1 User1: 3 | #2 User2: 2 | #3 User3: 1
+
+# Release Notes
+- v1.0.0
+-- Initial release
