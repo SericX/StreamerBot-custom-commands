@@ -4,8 +4,6 @@ Allows you to have check-in bands for different check-in values, i.e. play diffe
 # How to implement?
 You can either add the code manually as a sub-action, or import a modified example from the Streamer.bot docs
 
-https://docs.streamer.bot/get-started/examples/quotes-commands
-
 ## Manual
 You can add the code as an Execute C# Code sub-action or use the Streamer.bot import below. You will also need to ensure you have a check-in point redemption set as the trigger. 
 

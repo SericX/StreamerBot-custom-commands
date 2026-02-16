@@ -3,6 +3,11 @@ An easier way to manage SFX files triggered with !soundeffectname, just call the
 
 Only works with .mp3 files. You will need to populate the SFX file list before you can use it by running SFXManager/Populate SFX to construct the .json file.
 
+Outputs a paginated SFX list, although only tried with 4 files so far. 
+
+Example output:
+SFX Page 1 : wappen1, wappen2, kupo, kweh
+
 # How to implement?
 Use the import below, and set the folder path in the SFX_Folder argument. 
 
